@@ -225,11 +225,10 @@
 
 <script>
 
-  const SUPABASE_URL =
-    "https://ihzsalexazemlqbrpneb.supabase.co";
-
-  const SUPABASE_PUBLISHABLE_KEY =
-    "YOUR_NEW_PUBLISHABLE_KEY";
+  const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 
   const { createClient } =
     supabase.createClient(
