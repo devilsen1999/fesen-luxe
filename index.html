@@ -250,7 +250,7 @@ const supabaseClient = supabase.createClient(
       document.getElementById("password").value;
 
     const { error } =
-      await supabase.auth.signUp({
+      await supabaseClient.auth.signUp({
         email,
         password
       });
@@ -274,7 +274,7 @@ const supabaseClient = supabase.createClient(
       document.getElementById("password").value;
 
     const { error } =
-      await supabase.auth.signInWithPassword({
+      await supabaseClinet.auth.signInWithPassword({
         email,
         password
       });
