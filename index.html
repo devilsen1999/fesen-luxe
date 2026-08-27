@@ -3,77 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FESEN LUXE — Create. Connect. Sell. Earn.</title>
+
+  <title>FESEN LUXE</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
       font-family: Arial, sans-serif;
     }
 
     body {
       background: #050505;
-      color: #ffffff;
-      overflow-x: hidden;
+      color: white;
+      min-height: 100vh;
     }
 
     header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(5,5,5,0.92);
+      padding: 20px;
       border-bottom: 1px solid #222;
-      backdrop-filter: blur(15px);
-    }
-
-    nav {
-      max-width: 1200px;
-      margin: auto;
-      padding: 18px 25px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
 
     .logo {
-      font-size: 24px;
-      font-weight: 900;
+      color: #d4af37;
+      font-size: 22px;
+      font-weight: bold;
       letter-spacing: 3px;
-      color: #d4af37;
     }
 
-    nav a {
-      color: #ddd;
-      text-decoration: none;
-      margin-left: 22px;
-      font-size: 14px;
-    }
-
-    nav a:hover {
-      color: #d4af37;
-    }
-
-    .hero {
-      min-height: 82vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 70px 20px;
-      background:
-        radial-gradient(circle at center, #2a2108 0%, #090909 35%, #050505 70%);
-    }
-
-    .hero h1 {
-      font-size: clamp(45px, 9vw, 90px);
-      line-height: 0.95;
-      letter-spacing: -3px;
-      margin-bottom: 25px;
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 30px;
+      padding: 13px 22px;
+      font-weight: bold;
     }
 
     .gold {
+      background: #d4af37;
+      color: #000;
+    }
+
+    .outline {
+      background: transparent;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 100px 20px 70px;
+      background: radial-gradient(circle, #292006, #050505 65%);
+    }
+
+    h1 {
+      font-size: clamp(45px, 10vw, 80px);
+      line-height: 1;
+      margin-bottom: 25px;
+    }
+
+    .gold-text {
       color: #d4af37;
     }
 
@@ -81,115 +76,61 @@
       max-width: 650px;
       margin: auto;
       color: #aaa;
-      font-size: 18px;
       line-height: 1.7;
     }
 
-    .buttons {
-      margin-top: 35px;
+    .actions {
+      margin-top: 30px;
     }
 
-    .btn {
-      display: inline-block;
-      padding: 14px 25px;
-      border-radius: 30px;
-      text-decoration: none;
-      margin: 6px;
-      font-weight: bold;
-      transition: .3s;
-    }
-
-    .primary {
-      background: #d4af37;
-      color: #050505;
-    }
-
-    .secondary {
-      border: 1px solid #555;
-      color: white;
-    }
-
-    .btn:hover {
-      transform: translateY(-3px);
-    }
-
-    section {
-      max-width: 1200px;
+    .features {
+      max-width: 1100px;
       margin: auto;
-      padding: 75px 25px;
-    }
-
-    .section-title {
-      font-size: 32px;
-      margin-bottom: 30px;
-    }
-
-    .section-title span {
-      color: #d4af37;
-    }
-
-    .grid {
+      padding: 60px 20px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 20px;
     }
 
     .card {
-      background: linear-gradient(145deg, #151515, #0b0b0b);
-      border: 1px solid #252525;
+      background: #111;
+      border: 1px solid #292929;
+      padding: 30px;
       border-radius: 20px;
-      padding: 25px;
-      min-height: 170px;
-      transition: .3s;
     }
 
-    .card:hover {
-      transform: translateY(-6px);
-      border-color: #d4af37;
-    }
-
-    .icon {
-      font-size: 34px;
-      margin-bottom: 15px;
-    }
-
-    .card h3 {
-      margin-bottom: 10px;
+    .card h2 {
+      margin-bottom: 12px;
     }
 
     .card p {
       color: #999;
       line-height: 1.5;
-      font-size: 14px;
     }
 
-    .cta {
-      text-align: center;
+    #auth {
+      display: none;
+      max-width: 420px;
+      margin: 50px auto;
+      padding: 30px;
+      background: #111;
       border: 1px solid #292929;
-      border-radius: 25px;
-      background: radial-gradient(circle, #211a07, #090909);
+      border-radius: 20px;
     }
 
-    footer {
-      border-top: 1px solid #222;
-      text-align: center;
-      padding: 35px 20px;
-      color: #777;
-      font-size: 13px;
+    input {
+      width: 100%;
+      padding: 15px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background: #050505;
+      color: white;
     }
 
-    @media (max-width: 700px) {
-      nav a {
-        display: none;
-      }
-
-      .hero {
-        min-height: 75vh;
-      }
-
-      section {
-        padding: 55px 18px;
-      }
+    #message {
+      margin-top: 15px;
+      color: #d4af37;
     }
   </style>
 </head>
@@ -197,154 +138,163 @@
 <body>
 
 <header>
-  <nav>
-    <div class="logo">FESEN LUXE</div>
+  <div class="logo">FESEN LUXE</div>
 
-    <div>
-      <a href="#explore">Explore</a>
-      <a href="#creators">Creators</a>
-      <a href="#shop">Shop</a>
-      <a href="#ai">AI Studio</a>
-      <a href="#login">Login</a>
-    </div>
-  </nav>
+  <button class="gold" onclick="showAuth()">
+    Login / Sign Up
+  </button>
 </header>
 
-<main>
+<section class="hero">
 
-  <section class="hero">
-    <div>
-      <div class="gold">THE NEXT CREATOR PLATFORM</div>
+  <h1>
+    Create.<br>
+    Connect.<br>
+    <span class="gold-text">Sell. Earn.</span>
+  </h1>
 
-      <h1>
-        Create.<br>
-        Connect.<br>
-        <span class="gold">Sell. Earn.</span>
-      </h1>
+  <p>
+    Build your audience, share your content, sell products,
+    connect with your community and turn your creativity into income.
+  </p>
 
-      <p>
-        Build your audience, share your content, sell products,
-        connect with your community and turn your creativity into income.
-      </p>
+  <div class="actions">
+    <button class="gold" onclick="showAuth()">Start Creating</button>
+    <button class="outline">Explore Creators</button>
+  </div>
 
-      <div class="buttons">
-        <a class="btn primary" href="#creator">Start Creating</a>
-        <a class="btn secondary" href="#explore">Explore Creators</a>
-      </div>
-    </div>
-  </section>
+</section>
 
-  <section id="explore">
-    <h2 class="section-title">🔥 <span>Trending</span> Now</h2>
+<section class="features">
 
-    <div class="grid">
-      <div class="card">
-        <div class="icon">🎥</div>
-        <h3>Short Videos</h3>
-        <p>Discover creators and trending content.</p>
-      </div>
+  <div class="card">
+    <h2>🎥 Videos</h2>
+    <p>Create and discover short-form content.</p>
+  </div>
 
-      <div class="card">
-        <div class="icon">❤️</div>
-        <h3>Community</h3>
-        <p>Follow creators and build your audience.</p>
-      </div>
+  <div class="card">
+    <h2>💎 Subscriptions</h2>
+    <p>Build a premium community.</p>
+  </div>
 
-      <div class="card">
-        <div class="icon">🔥</div>
-        <h3>Trending</h3>
-        <p>Find content that everyone is talking about.</p>
-      </div>
-    </div>
-  </section>
+  <div class="card">
+    <h2>🛍️ Shop</h2>
+    <p>Sell products directly to your audience.</p>
+  </div>
 
-  <section id="creators">
-    <h2 class="section-title">⭐ Top <span>Creators</span></h2>
+  <div class="card">
+    <h2>📞 Paid Calls</h2>
+    <p>Connect with your audience directly.</p>
+  </div>
 
-    <div class="grid">
-      <div class="card">
-        <div class="icon">👤</div>
-        <h3>Creator Profile</h3>
-        <p>Followers, premium content, subscriptions and more.</p>
-      </div>
+  <div class="card">
+    <h2>🤖 AI Studio</h2>
+    <p>Create scripts, ideas and captions.</p>
+  </div>
 
-      <div class="card">
-        <div class="icon">💎</div>
-        <h3>Premium Membership</h3>
-        <p>Give your biggest supporters exclusive content.</p>
-      </div>
+  <div class="card">
+    <h2>💰 Creator Earnings</h2>
+    <p>Multiple ways for creators to earn.</p>
+  </div>
 
-      <div class="card">
-        <div class="icon">📞</div>
-        <h3>Paid Calls</h3>
-        <p>Offer scheduled voice and video calls.</p>
-      </div>
-    </div>
-  </section>
+</section>
 
-  <section id="shop">
-    <h2 class="section-title">🛍️ <span>FESEN</span> Shop</h2>
+<section id="auth">
 
-    <div class="grid">
-      <div class="card">
-        <div class="icon">🛒</div>
-        <h3>Creator Products</h3>
-        <p>Discover products recommended and sold by creators.</p>
-      </div>
+  <h2>Join FESEN LUXE</h2>
 
-      <div class="card">
-        <div class="icon">💳</div>
-        <h3>Secure Checkout</h3>
-        <p>Simple and secure online purchasing experience.</p>
-      </div>
+  <p style="color:#999;margin:10px 0 20px;">
+    Create your account and start building.
+  </p>
 
-      <div class="card">
-        <div class="icon">📦</div>
-        <h3>Order Tracking</h3>
-        <p>Manage your orders and deliveries in one place.</p>
-      </div>
-    </div>
-  </section>
+  <input id="email" type="email" placeholder="Email address">
 
-  <section id="ai">
-    <h2 class="section-title">🤖 <span>AI</span> Creator Studio</h2>
+  <input id="password" type="password" placeholder="Password">
 
-    <div class="grid">
-      <div class="card">
-        <div class="icon">💡</div>
-        <h3>Video Ideas</h3>
-        <p>Generate new content ideas for your audience.</p>
-      </div>
+  <button class="gold" onclick="signUp()">
+    Create Account
+  </button>
 
-      <div class="card">
-        <div class="icon">✍️</div>
-        <h3>AI Scripts</h3>
-        <p>Create engaging short-form video scripts.</p>
-      </div>
+  <button class="outline" onclick="login()" style="margin-left:5px;">
+    Login
+  </button>
 
-      <div class="card">
-        <div class="icon">#️⃣</div>
-        <h3>Captions & Hashtags</h3>
-        <p>Generate captions and relevant hashtags.</p>
-      </div>
-    </div>
-  </section>
+  <div id="message"></div>
 
-  <section class="cta" id="creator">
-    <h2 class="section-title">Ready to <span>Build?</span></h2>
+</section>
 
-    <p style="color:#aaa; margin-bottom:25px;">
-      Your creator journey starts here.
-    </p>
+<script>
 
-    <a class="btn primary" href="#login">Create Your Account</a>
-  </section>
+  const SUPABASE_URL =
+    "https://ihzsalexazemlqbrpneb.supabase.co";
 
-</main>
+  const SUPABASE_PUBLISHABLE_KEY =
+    "YOUR_NEW_PUBLISHABLE_KEY";
 
-<footer id="login">
-  © 2026 FESEN LUXE — Create. Connect. Sell. Earn.
-</footer>
+  const { createClient } =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+  function showAuth() {
+    document.getElementById("auth").style.display = "block";
+
+    window.scrollTo({
+      top: document.getElementById("auth").offsetTop,
+      behavior: "smooth"
+    });
+  }
+
+  async function signUp() {
+
+    const email =
+      document.getElementById("email").value;
+
+    const password =
+      document.getElementById("password").value;
+
+    const { error } =
+      await supabase.auth.signUp({
+        email,
+        password
+      });
+
+    if (error) {
+      document.getElementById("message").innerText =
+        error.message;
+      return;
+    }
+
+    document.getElementById("message").innerText =
+      "Account created! Check your email to verify.";
+  }
+
+  async function login() {
+
+    const email =
+      document.getElementById("email").value;
+
+    const password =
+      document.getElementById("password").value;
+
+    const { error } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+      document.getElementById("message").innerText =
+        error.message;
+      return;
+    }
+
+    document.getElementById("message").innerText =
+      "Login successful!";
+  }
+
+</script>
 
 </body>
-  </html>
+</html> sb_publishable_SK209MnGZcXfawWYr1Zm2Q_vDfJSMgj
