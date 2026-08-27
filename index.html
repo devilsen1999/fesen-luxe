@@ -226,17 +226,11 @@
 </section>
 
 <script>
-
-  const supabaseClient = supabase.createClient(
+const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
 );
-
-  const { createClient } =
-    supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
+  
 
   function showAuth() {
     document.getElementById("auth").style.display = "block";
