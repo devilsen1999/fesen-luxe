@@ -1,166 +1,1825 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Method not allowed"
-    });
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#05070d">
+  <title>FESEN LUXE — JARVIS X-IQ</title>
 
-  try {
-    const {
-      messages = [],
-      mode = "jarvis",
-      provider = "openai"
-    } = req.body || {};
-
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({
-        error: "Messages are required"
-      });
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    const systemPrompt = `
-You are JARVIS X-IQ, a personal AI assistant.
-
-You are intelligent, practical, honest and helpful.
-
-Language:
-- Reply in the language the user uses.
-- Support Hindi, English and Hinglish naturally.
-
-Modes:
-- jarvis: professional, intelligent and efficient.
-- girlfriend: warm, caring, playful and affectionate, while clearly remaining an AI assistant.
-- developer: technical and precise.
-- business: practical and strategy-focused.
-- study: educational and easy to understand.
-- cyber: defensive and ethical cybersecurity only.
-
-Rules:
-- Never claim that you performed an action unless you actually did.
-- Do not invent information.
-- Explain complicated things step-by-step.
-- For dangerous or unauthorized cybersecurity activity, refuse the harmful part and provide a safe alternative.
-- Keep simple answers concise.
-`;
-
-    const finalMessages = [
-      {
-        role: "system",
-        content: `${systemPrompt}\nCurrent mode: ${mode}`
-      },
-      ...messages
-    ];
-
-    let response;
-    let data;
-
-    // =========================
-    // OPENAI
-    // =========================
-
-    if (provider === "openai") {
-      const apiKey = process.env.OPENAI_API_KEY;
-
-      if (!apiKey) {
-        return res.status(500).json({
-          error: "OPENAI_API_KEY is not configured"
-        });
-      }
-
-      response = await fetch(
-        "https://api.openai.com/v1/responses",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: "gpt-5-mini",
-            instructions: systemPrompt,
-            input: messages
-          })
-        }
-      );
-
-      data = await response.json();
-
-      if (!response.ok) {
-        console.error("OpenAI error:", data);
-
-        return res.status(response.status).json({
-          error:
-            data?.error?.message ||
-            "OpenAI request failed"
-        });
-      }
-
-      return res.status(200).json({
-        provider: "openai",
-        reply:
-          data.output_text ||
-          "I couldn't generate a response."
-      });
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, #18233d 0%, #080b13 38%, #030408 100%);
+      color: #fff;
+      min-height: 100vh;
     }
 
-    // =========================
-    // DEEPSEEK
-    // =========================
-
-    if (provider === "deepseek") {
-      const apiKey = process.env.DEEPSEEK_API_KEY;
-
-      if (!apiKey) {
-        return res.status(500).json({
-          error: "DEEPSEEK_API_KEY is not configured"
-        });
-      }
-
-      response = await fetch(
-        "https://api.deepseek.com/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: "deepseek-v4-pro",
-            messages: finalMessages,
-            stream: false
-          })
-        }
-      );
-
-      data = await response.json();
-
-      if (!response.ok) {
-        console.error("DeepSeek error:", data);
-
-        return res.status(response.status).json({
-          error:
-            data?.error?.message ||
-            "DeepSeek request failed"
-        });
-      }
-
-      return res.status(200).json({
-        provider: "deepseek",
-        reply:
-          data?.choices?.[0]?.message?.content ||
-          "I couldn't generate a response."
-      });
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
     }
 
-    return res.status(400).json({
-      error: "Unknown AI provider"
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1200px, 100%);
+      margin: auto;
+      padding: 18px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding: 14px 4px 22px;
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .brand span {
+      color: #65d8ff;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #a9b4c8;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #43e97b;
+      box-shadow: 0 0 15px #43e97b;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 25px 10px 30px;
+    }
+
+    .orb {
+      width: 145px;
+      height: 145px;
+      margin: auto;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle, #6de3ff 0%, #1b86bd 24%, #101a36 55%, #05070d 70%);
+      border: 1px solid #4fcfff;
+      box-shadow:
+        0 0 35px rgba(69, 206, 255, .35),
+        inset 0 0 35px rgba(69, 206, 255, .2);
+      animation: pulse 3s infinite ease-in-out;
+    }
+
+    .orb.active {
+      animation: pulseActive 1s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      50% {
+        transform: scale(1.04);
+      }
+    }
+
+    @keyframes pulseActive {
+      50% {
+        transform: scale(1.09);
+        box-shadow: 0 0 65px rgba(69, 206, 255, .7);
+      }
+    }
+
+    .orbText {
+      font-size: 27px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: clamp(30px, 7vw, 52px);
+    }
+
+    .subtitle {
+      color: #9ba9bf;
+      margin-top: 8px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn {
+      border: 1px solid #273750;
+      background: #101725;
+      color: white;
+      border-radius: 12px;
+      padding: 12px 16px;
+      transition: .2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: #55d7ff;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #168ec0, #3f4fe4);
+      border: none;
+    }
+
+    .btn.danger {
+      background: #32131a;
+      border-color: #73313d;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: rgba(10, 15, 26, .82);
+      border: 1px solid #1d2a40;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 15px 40px rgba(0,0,0,.18);
+    }
+
+    .card h2 {
+      font-size: 17px;
+      margin-bottom: 14px;
+    }
+
+    .card p {
+      color: #91a0b7;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .chatCard {
+      grid-column: 1 / -1;
+    }
+
+    .chat {
+      height: 410px;
+      overflow-y: auto;
+      padding: 8px;
+      border-radius: 14px;
+      background: #060a12;
+      border: 1px solid #172238;
+    }
+
+    .message {
+      max-width: 88%;
+      padding: 12px 14px;
+      border-radius: 15px;
+      margin: 8px 0;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+    }
+
+    .message.user {
+      margin-left: auto;
+      background: #123c56;
+      border: 1px solid #1c709d;
+    }
+
+    .message.jarvis {
+      margin-right: auto;
+      background: #111827;
+      border: 1px solid #263653;
+    }
+
+    .message.system {
+      margin: 8px auto;
+      text-align: center;
+      color: #7f91ad;
+      font-size: 12px;
+    }
+
+    .chatInputRow {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chatInputRow input {
+      flex: 1;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      background: #080d17;
+      color: white;
+      border: 1px solid #24334c;
+      border-radius: 11px;
+      padding: 12px;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #50d7ff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .row {
+      display: flex;
+      gap: 9px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .row > * {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .modeGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .modeBtn {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #25344c;
+      background: #0b111d;
+      color: #aab7cb;
+    }
+
+    .modeBtn.active {
+      color: white;
+      border-color: #53d8ff;
+      background: #102c3b;
+    }
+
+    .output {
+      margin-top: 10px;
+      padding: 11px;
+      border-radius: 10px;
+      background: #070c15;
+      border: 1px solid #19283e;
+      color: #b9c5d8;
+      min-height: 42px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .memoryList,
+    .noteList,
+    .reminderList {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .listItem {
+      background: #080d16;
+      border: 1px solid #1a283d;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      color: #b6c2d5;
+    }
+
+    .small {
+      font-size: 11px;
+      color: #74839a;
+      margin-top: 6px;
+    }
+
+    .footer {
+      text-align: center;
+      color: #58677e;
+      font-size: 11px;
+      padding: 25px 0 10px;
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chatCard {
+        grid-column: auto;
+      }
+
+      .modeGrid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .chatInputRow {
+        flex-wrap: wrap;
+      }
+
+      .chatInputRow input {
+        flex-basis: 100%;
+      }
+
+      .orb {
+        width: 125px;
+        height: 125px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="brand">FESEN <span>LUXE</span></div>
+
+    <div class="status">
+      <span class="dot"></span>
+      JARVIS ONLINE
+    </div>
+  </header>
+
+  <section class="hero">
+
+    <div class="orb" id="orb">
+      <div class="orbText">JX</div>
+    </div>
+
+    <h1>JARVIS X-IQ</h1>
+
+    <div class="subtitle">
+      Personal AI Command Center
+    </div>
+
+    <div class="controls">
+      <button class="btn primary" id="startBtn" onclick="startJarvis()">
+        🚀 Start JARVIS
+      </button>
+
+      <button class="btn" onclick="toggleVoice()">
+        🎙️ Voice
+      </button>
+
+      <button class="btn" onclick="speak(lastReply || 'JARVIS systems are ready.')">
+        🔊 Speak
+      </button>
+
+      <button class="btn danger" onclick="clearChat()">
+        🗑️ Clear Chat
+      </button>
+    </div>
+
+  </section>
+
+  <section class="grid">
+
+    <!-- CHAT -->
+    <div class="card chatCard">
+
+      <h2>🤖 AI Command Center</h2>
+
+      <div class="row">
+        <select id="provider">
+          <option value="openai">OpenAI</option>
+          <option value="deepseek">DeepSeek</option>
+        </select>
+
+        <select id="language">
+          <option value="auto">Auto Language</option>
+          <option value="hindi">Hindi</option>
+          <option value="english">English</option>
+          <option value="hinglish">Hinglish</option>
+        </select>
+      </div>
+
+      <div class="chat" id="chat"></div>
+
+      <div class="chatInputRow">
+        <input
+          id="chatInput"
+          type="text"
+          placeholder="Talk to JARVIS..."
+          autocomplete="off"
+        >
+
+        <button class="btn" onclick="startListening()">🎤</button>
+
+        <button class="btn primary" onclick="sendMessage()">Send</button>
+      </div>
+
+    </div>
+
+    <!-- MODES -->
+    <div class="card">
+
+      <h2>⚡ JARVIS Modes</h2>
+
+      <div class="modeGrid">
+
+        <button class="modeBtn active" data-mode="jarvis" onclick="setMode('jarvis', this)">
+          JARVIS
+        </button>
+
+        <button class="modeBtn" data-mode="girlfriend" onclick="setMode('girlfriend', this)">
+          ❤️ Girlfriend
+        </button>
+
+        <button class="modeBtn" data-mode="developer" onclick="setMode('developer', this)">
+          👨‍💻 Developer
+        </button>
+
+        <button class="modeBtn" data-mode="business" onclick="setMode('business', this)">
+          💼 Business
+        </button>
+
+        <button class="modeBtn" data-mode="study" onclick="setMode('study', this)">
+          📚 Study
+        </button>
+
+        <button class="modeBtn" data-mode="cyber" onclick="setMode('cyber', this)">
+          🛡️ Cyber
+        </button>
+
+      </div>
+
+      <div class="output" id="modeStatus">
+        Current Mode: JARVIS
+      </div>
+
+    </div>
+
+    <!-- MEMORY -->
+    <div class="card">
+
+      <h2>🧠 Memory</h2>
+
+      <input id="memoryInput" placeholder="Remember something...">
+
+      <div class="row">
+        <button class="btn primary" onclick="saveMemory()">Save Memory</button>
+        <button class="btn" onclick="clearMemory()">Clear</button>
+      </div>
+
+      <div class="memoryList" id="memoryList"></div>
+
+    </div>
+
+    <!-- NOTES -->
+    <div class="card">
+
+      <h2>📝 Notes</h2>
+
+      <textarea id="noteInput" placeholder="Write a note..."></textarea>
+
+      <div class="row">
+        <button class="btn primary" onclick="saveNote()">Save Note</button>
+        <button class="btn" onclick="clearNotes()">Clear Notes</button>
+      </div>
+
+      <div class="noteList" id="noteList"></div>
+
+    </div>
+
+    <!-- REMINDERS -->
+    <div class="card">
+
+      <h2>⏰ Reminders</h2>
+
+      <input id="reminderText" placeholder="Reminder text">
+
+      <div class="row">
+        <input id="reminderMinutes" type="number" min="1" placeholder="Minutes">
+
+        <button class="btn primary" onclick="createReminder()">
+          Set
+        </button>
+      </div>
+
+      <div class="reminderList" id="reminderList"></div>
+
+    </div>
+
+    <!-- WEB -->
+    <div class="card">
+
+      <h2>🌐 Web Search</h2>
+
+      <p>
+        Search the web from JARVIS when fresh information is required.
+      </p>
+
+      <div class="row">
+        <input id="searchInput" placeholder="Search the web...">
+
+        <button class="btn primary" onclick="webSearch()">
+          Search
+        </button>
+      </div>
+
+    </div>
+
+    <!-- CALCULATOR -->
+    <div class="card">
+
+      <h2>🧮 Calculator</h2>
+
+      <input id="calcInput" placeholder="Example: 25 * 48 + 100">
+
+      <div class="row">
+        <button class="btn primary" onclick="calculate()">
+          Calculate
+        </button>
+      </div>
+
+      <div class="output" id="calcOutput"></div>
+
+    </div>
+
+    <!-- CYBER -->
+    <div class="card">
+
+      <h2>🛡️ Cyber Security Lab</h2>
+
+      <p>
+        Defensive security tools only. No unauthorized access,
+        credential theft or malware.
+      </p>
+
+      <input id="urlInput" placeholder="https://example.com">
+
+      <div class="row">
+        <button class="btn primary" onclick="checkUrl()">
+          Check URL
+        </button>
+      </div>
+
+      <div class="output" id="urlOutput"></div>
+
+    </div>
+
+    <!-- PASSWORD -->
+    <div class="card">
+
+      <h2>🔐 Password Strength</h2>
+
+      <input
+        id="passwordInput"
+        type="password"
+        placeholder="Enter password to test locally"
+        oninput="passwordStrength()"
+      >
+
+      <div class="output" id="passwordOutput"></div>
+
+    </div>
+
+    <!-- LOCATION -->
+    <div class="card">
+
+      <h2>📍 Location</h2>
+
+      <p>
+        Location is requested only after your permission.
+      </p>
+
+      <div class="row">
+        <button class="btn primary" onclick="getLocation()">
+          Allow Location
+        </button>
+      </div>
+
+      <div class="output" id="locationOutput"></div>
+
+    </div>
+
+    <!-- FILES -->
+    <div class="card">
+
+      <h2>📁 File Brain</h2>
+
+      <p>
+        Select a local file. This version reads basic text files locally.
+      </p>
+
+      <input
+        id="fileInput"
+        type="file"
+        accept=".txt,.md,.json,.csv"
+        onchange="readFile(event)"
+      >
+
+      <div class="output" id="fileOutput"></div>
+
+    </div>
+
+    <!-- PHOTO / VIDEO -->
+    <div class="card">
+
+      <h2>🎬 Media Lab</h2>
+
+      <p>
+        Select photo or video files for future AI editing workflows.
+      </p>
+
+      <input
+        id="mediaInput"
+        type="file"
+        accept="image/*,video/*"
+        multiple
+        onchange="mediaSelected(event)"
+      >
+
+      <div class="output" id="mediaOutput"></div>
+
+    </div>
+
+  </section>
+
+  <div class="footer">
+    FESEN LUXE • JARVIS X-IQ • Personal AI System
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   GLOBAL STATE
+========================= */
+
+let mode = "jarvis";
+let voiceEnabled = true;
+let listening = false;
+let lastReply = "";
+
+let chatHistory = [];
+
+let memories =
+  JSON.parse(localStorage.getItem("jarvis_memories") || "[]");
+
+let notes =
+  JSON.parse(localStorage.getItem("jarvis_notes") || "[]");
+
+let reminders =
+  JSON.parse(localStorage.getItem("jarvis_reminders") || "[]");
+
+
+/* =========================
+   INIT
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  renderMemories();
+  renderNotes();
+  renderReminders();
+
+  addMessage(
+    "JARVIS X-IQ online. Systems ready. How can I help you?",
+    "jarvis"
+  );
+
+  document
+    .getElementById("chatInput")
+    .addEventListener("keydown", (event) => {
+
+      if(event.key === "Enter"){
+        sendMessage();
+      }
+
     });
 
-  } catch (error) {
-    console.error("JARVIS backend error:", error);
+});
 
-    return res.status(500).json({
-      error: "JARVIS backend error"
-    });
-  }
+
+/* =========================
+   START JARVIS
+========================= */
+
+function startJarvis(){
+
+  const orb = document.getElementById("orb");
+  const btn = document.getElementById("startBtn");
+
+  orb.classList.add("active");
+
+  btn.textContent = "✓ JARVIS Active";
+
+  addMessage(
+    "JARVIS activated. Voice, AI and command systems are ready.",
+    "jarvis"
+  );
+
+  speak("JARVIS activated. Systems are ready.");
+
 }
+
+
+/* =========================
+   CHAT UI
+========================= */
+
+function addMessage(text, type){
+
+  const chat = document.getElementById("chat");
+
+  const message = document.createElement("div");
+
+  message.className = "message " + type;
+
+  message.textContent = text;
+
+  chat.appendChild(message);
+
+  chat.scrollTop = chat.scrollHeight;
+
+}
+
+
+function clearChat(){
+
+  chatHistory = [];
+
+  const chat = document.getElementById("chat");
+
+  chat.innerHTML = "";
+
+  addMessage(
+    "Chat cleared. JARVIS is ready.",
+    "system"
+  );
+
+}
+
+
+/* =========================
+   SEND MESSAGE
+========================= */
+
+async function sendMessage(){
+
+  const input = document.getElementById("chatInput");
+
+  const text = input.value.trim();
+
+  if(!text){
+    return;
+  }
+
+  addMessage(text, "user");
+
+  input.value = "";
+
+  const thinking = document.createElement("div");
+
+  thinking.className = "message jarvis";
+
+  thinking.textContent = "Thinking... 🤖";
+
+  thinking.id = "thinkingMessage";
+
+  document.getElementById("chat").appendChild(thinking);
+
+  document.getElementById("chat").scrollTop =
+    document.getElementById("chat").scrollHeight;
+
+
+  const provider =
+    document.getElementById("provider").value;
+
+  const language =
+    document.getElementById("language").value;
+
+
+  let userContent = text;
+
+  if(language !== "auto"){
+
+    userContent +=
+      `\n\nPlease answer in ${language} language.`;
+
+  }
+
+
+  chatHistory.push({
+    role: "user",
+    content: userContent
+  });
+
+
+  try{
+
+    const response = await fetch("/api/chat", {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+
+        messages: chatHistory,
+
+        mode: mode,
+
+        provider: provider
+
+      })
+
+    });
+
+
+    const data = await response.json();
+
+
+    const thinkingMessage =
+      document.getElementById("thinkingMessage");
+
+    if(thinkingMessage){
+      thinkingMessage.remove();
+    }
+
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error || "JARVIS request failed"
+      );
+
+    }
+
+
+    lastReply =
+      data.reply ||
+      "I couldn't generate a response.";
+
+
+    chatHistory.push({
+      role: "assistant",
+      content: lastReply
+    });
+
+
+    addMessage(lastReply, "jarvis");
+
+    speak(lastReply);
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+
+    const thinkingMessage =
+      document.getElementById("thinkingMessage");
+
+    if(thinkingMessage){
+      thinkingMessage.remove();
+    }
+
+
+    const errorMessage =
+      "JARVIS AI connection failed.\n\n" +
+      "Please check your Vercel deployment and API settings.";
+
+
+    lastReply = errorMessage;
+
+    addMessage(errorMessage, "jarvis");
+
+  }
+
+}
+
+
+/* =========================
+   MODES
+========================= */
+
+function setMode(newMode, button){
+
+  mode = newMode;
+
+  document
+    .querySelectorAll(".modeBtn")
+    .forEach(btn => btn.classList.remove("active"));
+
+  button.classList.add("active");
+
+  document.getElementById("modeStatus").textContent =
+    "Current Mode: " +
+    newMode.toUpperCase();
+
+  addMessage(
+    `Mode changed to ${newMode.toUpperCase()}.`,
+    "system"
+  );
+
+}
+
+
+/* =========================
+   SPEECH SYNTHESIS
+========================= */
+
+function speak(text){
+
+  if(!voiceEnabled){
+    return;
+  }
+
+  if(!("speechSynthesis" in window)){
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const utterance =
+    new SpeechSynthesisUtterance(text);
+
+  const selectedLanguage =
+    document.getElementById("language").value;
+
+
+  if(selectedLanguage === "hindi"){
+    utterance.lang = "hi-IN";
+  }
+  else if(selectedLanguage === "english"){
+    utterance.lang = "en-US";
+  }
+  else{
+    utterance.lang = "en-IN";
+  }
+
+
+  utterance.rate = .95;
+  utterance.pitch = 1;
+
+  window.speechSynthesis.speak(utterance);
+
+}
+
+
+function toggleVoice(){
+
+  voiceEnabled = !voiceEnabled;
+
+  addMessage(
+    voiceEnabled
+      ? "Voice output enabled."
+      : "Voice output disabled.",
+    "system"
+  );
+
+}
+
+
+/* =========================
+   SPEECH RECOGNITION
+========================= */
+
+function startListening(){
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+  if(!SpeechRecognition){
+
+    addMessage(
+      "Speech recognition is not supported by this browser.",
+      "system"
+    );
+
+    return;
+
+  }
+
+
+  if(listening){
+    return;
+  }
+
+
+  const recognition =
+    new SpeechRecognition();
+
+
+  recognition.lang = "en-IN";
+
+  recognition.interimResults = false;
+
+  recognition.continuous = false;
+
+
+  listening = true;
+
+  document.getElementById("orb")
+    .classList.add("active");
+
+
+  recognition.start();
+
+
+  recognition.onresult = (event) => {
+
+    const text =
+      event.results[0][0].transcript;
+
+    document.getElementById("chatInput").value =
+      text;
+
+    sendMessage();
+
+  };
+
+
+  recognition.onerror = () => {
+
+    addMessage(
+      "Voice recognition could not understand that.",
+      "system"
+    );
+
+  };
+
+
+  recognition.onend = () => {
+
+    listening = false;
+
+    document.getElementById("orb")
+      .classList.remove("active");
+
+  };
+
+}
+
+
+/* =========================
+   VOICE ALIAS
+========================= */
+
+function startVoice(){
+
+  startListening();
+
+}
+
+
+/* =========================
+   MEMORY
+========================= */
+
+function saveMemory(){
+
+  const input =
+    document.getElementById("memoryInput");
+
+  const text =
+    input.value.trim();
+
+
+  if(!text){
+    return;
+  }
+
+
+  memories.push({
+
+    text: text,
+
+    created:
+      new Date().toLocaleString()
+
+  });
+
+
+  localStorage.setItem(
+    "jarvis_memories",
+    JSON.stringify(memories)
+  );
+
+
+  input.value = "";
+
+  renderMemories();
+
+}
+
+
+function renderMemories(){
+
+  const list =
+    document.getElementById("memoryList");
+
+  list.innerHTML = "";
+
+
+  memories.slice().reverse().forEach((item) => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "listItem";
+
+    div.textContent =
+      item.text +
+      " • " +
+      item.created;
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
+function clearMemory(){
+
+  memories = [];
+
+  localStorage.removeItem(
+    "jarvis_memories"
+  );
+
+  renderMemories();
+
+}
+
+
+/* =========================
+   NOTES
+========================= */
+
+function saveNote(){
+
+  const input =
+    document.getElementById("noteInput");
+
+  const text =
+    input.value.trim();
+
+
+  if(!text){
+    return;
+  }
+
+
+  notes.push({
+
+    text: text,
+
+    created:
+      new Date().toLocaleString()
+
+  });
+
+
+  localStorage.setItem(
+    "jarvis_notes",
+    JSON.stringify(notes)
+  );
+
+
+  input.value = "";
+
+  renderNotes();
+
+}
+
+
+function renderNotes(){
+
+  const list =
+    document.getElementById("noteList");
+
+  list.innerHTML = "";
+
+
+  notes.slice().reverse().forEach((item) => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "listItem";
+
+    div.textContent =
+      item.text +
+      " • " +
+      item.created;
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
+function clearNotes(){
+
+  notes = [];
+
+  localStorage.removeItem(
+    "jarvis_notes"
+  );
+
+  renderNotes();
+
+}
+
+
+/* =========================
+   REMINDERS
+========================= */
+
+function createReminder(){
+
+  const text =
+    document.getElementById("reminderText")
+      .value.trim();
+
+  const minutes =
+    Number(
+      document.getElementById("reminderMinutes")
+        .value
+    );
+
+
+  if(!text || !minutes || minutes < 1){
+
+    alert("Enter reminder and minutes.");
+
+    return;
+
+  }
+
+
+  const reminder = {
+
+    id: Date.now(),
+
+    text: text,
+
+    minutes: minutes,
+
+    created:
+      new Date().toLocaleString()
+
+  };
+
+
+  reminders.push(reminder);
+
+
+  localStorage.setItem(
+    "jarvis_reminders",
+    JSON.stringify(reminders)
+  );
+
+
+  renderReminders();
+
+
+  setTimeout(() => {
+
+    alert("⏰ JARVIS Reminder:\n\n" + text);
+
+    speak(
+      "Reminder. " + text
+    );
+
+  }, minutes * 60 * 1000);
+
+
+  document.getElementById("reminderText").value = "";
+
+  document.getElementById("reminderMinutes").value = "";
+
+}
+
+
+function renderReminders(){
+
+  const list =
+    document.getElementById("reminderList");
+
+  list.innerHTML = "";
+
+
+  reminders.slice().reverse().forEach((item) => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "listItem";
+
+    div.textContent =
+      `${item.text} — ${item.minutes} min`;
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
+/* =========================
+   WEB SEARCH
+========================= */
+
+function webSearch(){
+
+  const input =
+    document.getElementById("searchInput");
+
+  const query =
+    input.value.trim();
+
+
+  if(!query){
+    return;
+  }
+
+
+  const url =
+    "https://www.google.com/search?q=" +
+    encodeURIComponent(query);
+
+
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+
+}
+
+
+/* =========================
+   CALCULATOR
+========================= */
+
+function calculate(){
+
+  const expression =
+    document.getElementById("calcInput")
+      .value.trim();
+
+
+  const output =
+    document.getElementById("calcOutput");
+
+
+  if(!expression){
+
+    output.textContent =
+      "Enter a calculation.";
+
+    return;
+
+  }
+
+
+  /*
+    Basic calculator.
+    Only mathematical characters are accepted.
+  */
+
+  if(!/^[0-9+\-*/().%\s]+$/.test(expression)){
+
+    output.textContent =
+      "Invalid mathematical expression.";
+
+    return;
+
+  }
+
+
+  try{
+
+    const result =
+      Function(
+        `"use strict"; return (${expression})`
+      )();
+
+
+    output.textContent =
+      String(result);
+
+  }
+
+  catch{
+
+    output.textContent =
+      "Could not calculate.";
+
+  }
+
+}
+
+
+/* =========================
+   CYBER URL CHECKER
+========================= */
+
+function checkUrl(){
+
+  const input =
+    document.getElementById("urlInput");
+
+  const output =
+    document.getElementById("urlOutput");
+
+
+  const value =
+    input.value.trim();
+
+
+  if(!value){
+
+    output.textContent =
+      "Enter a URL.";
+
+    return;
+
+  }
+
+
+  try{
+
+    const url =
+      new URL(value);
+
+
+    const protocol =
+      url.protocol;
+
+
+    const host =
+      url.hostname;
+
+
+    let result =
+      "Security Check\n\n";
+
+
+    result +=
+      "Host: " +
+      host +
+      "\n";
+
+
+    result +=
+      "Protocol: " +
+      protocol +
+      "\n";
+
+
+    if(protocol === "https:"){
+
+      result +=
+        "HTTPS: ✓ Enabled\n";
+
+    }
+    else{
+
+      result +=
+        "HTTPS: ⚠ Not enabled\n";
+
+    }
+
+
+    if(
+      host === "localhost" ||
+      host === "127.0.0.1"
+    ){
+
+      result +=
+        "Environment: Localhost\n";
+
+    }
+    else{
+
+      result +=
+        "Environment: Public domain\n";
+
+    }
+
+
+    result +=
+      "\nThis is a basic defensive URL check only.";
+
+    output.textContent = result;
+
+  }
+
+  catch{
+
+    output.textContent =
+      "Invalid URL.";
+
+  }
+
+}
+
+
+/* =========================
+   PASSWORD STRENGTH
+========================= */
+
+function passwordStrength(){
+
+  const password =
+    document.getElementById("passwordInput")
+      .value;
+
+
+  const output =
+    document.getElementById("passwordOutput");
+
+
+  if(!password){
+
+    output.textContent =
+      "Enter a password.";
+
+    return;
+
+  }
+
+
+  let score = 0;
+
+
+  if(password.length >= 8)
+    score++;
+
+  if(password.length >= 12)
+    score++;
+
+  if(/[A-Z]/.test(password))
+    score++;
+
+  if(/[a-z]/.test(password))
+    score++;
+
+  if(/[0-9]/.test(password))
+    score++;
+
+  if(/[^A-Za-z0-9]/.test(password))
+    score++;
+
+
+  let level;
+
+
+  if(score <= 2){
+
+    level = "Weak";
+
+  }
+  else if(score <= 4){
+
+    level = "Medium";
+
+  }
+  else{
+
+    level = "Strong";
+
+  }
+
+
+  output.textContent =
+    `Strength: ${level}\nScore: ${score}/6`;
+
+}
+
+
+/* =========================
+   LOCATION
+========================= */
+
+function getLocation(){
+
+  const output =
+    document.getElementById("locationOutput");
+
+
+  if(!navigator.geolocation){
+
+    output.textContent =
+      "Geolocation is not supported.";
+
+    return;
+
+  }
+
+
+  output.textContent =
+    "Waiting for permission...";
+
+
+  navigator.geolocation.getCurrentPosition(
+
+    position => {
+
+      const lat =
+        position.coords.latitude;
+
+      const lon =
+        position.coords.longitude;
+
+
+      output.textContent =
+        `Permission granted.\nLatitude: ${lat}\nLongitude: ${lon}`;
+
+    },
+
+    error => {
+
+      output.textContent =
+        "Location permission was denied or unavailable.";
+
+    }
+
+  );
+
+}
+
+
+/* =========================
+   FILE READER
+========================= */
+
+function readFile(event){
+
+  const file =
+    event.target.files[0];
+
+
+  const output =
+    document.getElementById("fileOutput");
+
+
+  if(!file){
+    return;
+  }
+
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload = () => {
+
+    const text =
+      String(reader.result);
+
+
+    output.textContent =
+      text.slice(0, 10000);
+
+  };
+
+
+  reader.onerror = () => {
+
+    output.textContent =
+      "Could not read this file.";
+
+  };
+
+
+  reader.readAsText(file);
+
+}
+
+
+/* =========================
+   MEDIA SELECTOR
+========================= */
+
+function mediaSelected(event){
+
+  const files =
+    Array.from(event.target.files);
+
+
+  const output =
+    document.getElementById("mediaOutput");
+
+
+  if(!files.length){
+
+    output.textContent =
+      "No media selected.";
+
+    return;
+
+  }
+
+
+  output.textContent =
+    files
+      .map(file =>
+        `${file.name} — ${formatBytes(file.size)}`
+      )
+      .join("\n");
+
+}
+
+
+function formatBytes(bytes){
+
+  if(bytes === 0){
+    return "0 Bytes";
+  }
+
+
+  const units =
+    ["Bytes", "KB", "MB", "GB"];
+
+
+  const index =
+    Math.floor(
+      Math.log(bytes) /
+      Math.log(1024)
+    );
+
+
+  return (
+    parseFloat(
+      (bytes /
+      Math.pow(1024, index))
+      .toFixed(2)
+    ) +
+    " " +
+    units[index]
+  );
+
+}
+
+
+/* =========================
+   GLOBAL ERROR PROTECTION
+========================= */
+
+window.addEventListener(
+  "error",
+  event => {
+
+    console.error(
+      "JARVIS frontend error:",
+      event.error
+    );
+
+  }
+);
+
+</script>
+
+</body>
+</html>
