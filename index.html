@@ -363,9 +363,68 @@ function generateReply(text){
     : "Understood. I can help with that. For real AI answers, connect a secure backend API.";
 }
 
-function sendMessage(){
+async function sendMessage(){
   const input=document.getElementById("chatInput");
   const text=input.value.trim();
+
+  if(!text)return;
+
+  addMessage(text,"user");
+  input.value="";
+
+  addMessage("Thinking... 🤖","jarvis");
+
+  try{
+    const response=await fetch("/api/chat",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        messages:[
+          {
+            role:"user",
+            content:text
+          }
+        ],
+        mode:mode
+      })
+    });
+
+    const data=await response.json();
+
+    if(!response.ok){
+      throw new Error(data.error||"JARVIS request failed");
+    }
+
+    lastReply=data.reply||"I couldn't generate a response.";
+
+    const chat=document.getElementById("chat");
+
+    if(chat.lastElementChild){
+      chat.removeChild(chat.lastElementChild);
+    }
+
+    addMessage(lastReply,"jarvis");
+    speak(lastReply);
+
+  }catch(error){
+
+    console.error("JARVIS error:",error);
+
+    const chat=document.getElementById("chat");
+
+    if(chat.lastElementChild){
+      chat.removeChild(chat.lastElementChild);
+    }
+
+    lastReply=
+      "Sorry, JARVIS could not connect to its AI brain right now.";
+
+    addMessage(lastReply,"jarvis");
+    speak(lastReply);
+  }
+}
 
   if(!text)return;
 
