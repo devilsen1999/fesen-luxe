@@ -1,295 +1,632 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FESEN LUXE — JARVIS</title>
 
-  <title>FESEN LUXE</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#050505;color:#fff;font-family:Arial,sans-serif;
+  min-height:100vh
+}
+button{
+  border:0;border-radius:14px;padding:12px 16px;
+  cursor:pointer;font-weight:700
+}
+.gold{background:#d4af37;color:#050505}
+.outline{background:#111;color:#fff;border:1px solid #444}
+header{
+  height:70px;padding:15px 20px;border-bottom:1px solid #222;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:#050505ee;z-index:10
+}
+.logo{color:#d4af37;font-weight:900;letter-spacing:3px}
+.container{max-width:1200px;margin:auto;padding:20px}
+.hero{
+  text-align:center;padding:45px 15px 25px
+}
+.hero h1{font-size:clamp(42px,9vw,78px)}
+.goldText{color:#d4af37}
+.hero p{color:#999;margin:15px auto;max-width:650px;line-height:1.6}
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+.status{
+  display:inline-flex;gap:8px;align-items:center;
+  padding:8px 14px;border:1px solid #292929;border-radius:30px;
+  color:#aaa;margin-bottom:18px
+}
+.dot{width:9px;height:9px;background:#39d353;border-radius:50%}
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;margin-top:25px
+}
+.card{
+  background:#101010;border:1px solid #292929;border-radius:20px;
+  padding:22px;min-height:150px
+}
+.card h2{margin-bottom:10px}
+.card p{color:#888;line-height:1.5;margin-bottom:15px}
 
-    body {
-      background: #050505;
-      color: white;
-      min-height: 100vh;
-    }
+.panel{
+  display:none;background:#0c0c0c;border:1px solid #292929;
+  border-radius:20px;padding:20px;margin-top:20px
+}
+.panel.active{display:block}
 
-    header {
-      padding: 20px;
-      border-bottom: 1px solid #222;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+input,textarea,select{
+  width:100%;padding:13px;margin:7px 0;
+  background:#050505;color:#fff;border:1px solid #333;
+  border-radius:12px
+}
+textarea{min-height:100px;resize:vertical}
 
-    .logo {
-      color: #d4af37;
-      font-size: 22px;
-      font-weight: bold;
-      letter-spacing: 3px;
-    }
+.chat{
+  height:260px;overflow:auto;border:1px solid #292929;
+  padding:15px;border-radius:15px;margin-bottom:10px
+}
+.msg{margin:8px 0;padding:10px;border-radius:12px;max-width:85%}
+.jarvis{background:#171717;color:#ddd}
+.user{background:#d4af37;color:#000;margin-left:auto}
 
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 30px;
-      padding: 13px 22px;
-      font-weight: bold;
-    }
+.wave{
+  text-align:center;font-size:35px;letter-spacing:5px;
+  color:#d4af37;margin:15px
+}
 
-    .gold {
-      background: #d4af37;
-      color: #000;
-    }
-
-    .outline {
-      background: transparent;
-      color: white;
-      border: 1px solid #555;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 100px 20px 70px;
-      background: radial-gradient(circle, #292006, #050505 65%);
-    }
-
-    h1 {
-      font-size: clamp(45px, 10vw, 80px);
-      line-height: 1;
-      margin-bottom: 25px;
-    }
-
-    .gold-text {
-      color: #d4af37;
-    }
-
-    .hero p {
-      max-width: 650px;
-      margin: auto;
-      color: #aaa;
-      line-height: 1.7;
-    }
-
-    .actions {
-      margin-top: 30px;
-    }
-
-    .features {
-      max-width: 1100px;
-      margin: auto;
-      padding: 60px 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: #111;
-      border: 1px solid #292929;
-      padding: 30px;
-      border-radius: 20px;
-    }
-
-    .card h2 {
-      margin-bottom: 12px;
-    }
-
-    .card p {
-      color: #999;
-      line-height: 1.5;
-    }
-
-    #auth {
-      display: none;
-      max-width: 420px;
-      margin: 50px auto;
-      padding: 30px;
-      background: #111;
-      border: 1px solid #292929;
-      border-radius: 20px;
-    }
-
-    input {
-      width: 100%;
-      padding: 15px;
-      margin: 8px 0;
-      border-radius: 10px;
-      border: 1px solid #333;
-      background: #050505;
-      color: white;
-    }
-
-    #message {
-      margin-top: 15px;
-      color: #d4af37;
-    }
-  </style>
+.small{font-size:13px;color:#777}
+footer{text-align:center;color:#555;padding:40px 10px}
+</style>
 </head>
 
 <body>
 
 <header>
   <div class="logo">FESEN LUXE</div>
-
-  <button class="gold" onclick="showAuth()">
-    Login / Sign Up
-  </button>
+  <button class="gold" onclick="togglePanel('jarvis')">🤖 JARVIS</button>
 </header>
 
+<main class="container">
+
 <section class="hero">
-
-  <h1>
-    Create.<br>
-    Connect.<br>
-    <span class="gold-text">Sell. Earn.</span>
-  </h1>
-
+  <div class="status"><span class="dot"></span> JARVIS ONLINE</div>
+  <h1>YOUR <span class="goldText">JARVIS</span></h1>
   <p>
-    Build your audience, share your content, sell products,
-    connect with your community and turn your creativity into income.
+    AI assistant dashboard for conversation, voice, memory,
+    productivity, creativity and safe cybersecurity learning.
   </p>
 
-  <div class="actions">
-    <button class="gold" onclick="showAuth()">Start Creating</button>
-    <button class="outline">Explore Creators</button>
-  </div>
+  <button class="gold" onclick="startJarvis()">Start JARVIS</button>
+  <button class="outline" onclick="speak('JARVIS systems are ready.')">🔊 Test Voice</button>
+</section>
+
+<section class="grid">
+
+<div class="card">
+<h2>🤖 AI Chat</h2>
+<p>Talk with your JARVIS assistant.</p>
+<button class="gold" onclick="togglePanel('jarvis')">Open</button>
+</div>
+
+<div class="card">
+<h2>💕 Girlfriend Mode</h2>
+<p>Switch to a warm, playful AI personality.</p>
+<button class="outline" onclick="setMode('girlfriend')">Activate</button>
+</div>
+
+<div class="card">
+<h2>🎙️ Voice</h2>
+<p>Use your microphone and browser speech system.</p>
+<button class="outline" onclick="listen()">🎤 Speak</button>
+</div>
+
+<div class="card">
+<h2>🧠 Memory</h2>
+<p>Save useful notes locally in this browser.</p>
+<button class="outline" onclick="togglePanel('memory')">Open</button>
+</div>
+
+<div class="card">
+<h2>⏰ Reminders</h2>
+<p>Create simple browser reminders.</p>
+<button class="outline" onclick="togglePanel('reminders')">Open</button>
+</div>
+
+<div class="card">
+<h2>🌐 Web Search</h2>
+<p>Search the web using your browser.</p>
+<button class="outline" onclick="webSearch()">Search</button>
+</div>
+
+<div class="card">
+<h2>📍 Location</h2>
+<p>Get your location only with browser permission.</p>
+<button class="outline" onclick="getLocation()">Get Location</button>
+</div>
+
+<div class="card">
+<h2>🛡️ Cyber Lab</h2>
+<p>Safe ethical-security tools and learning checks.</p>
+<button class="outline" onclick="togglePanel('cyber')">Open</button>
+</div>
+
+<div class="card">
+<h2>📸 Photo Studio</h2>
+<p>Select an image for the future editing pipeline.</p>
+<button class="outline" onclick="photoInput.click()">Choose Photo</button>
+<input id="photoInput" type="file" accept="image/*" hidden>
+</div>
+
+<div class="card">
+<h2>🎬 Video Studio</h2>
+<p>Select a video for the future enhancement pipeline.</p>
+<button class="outline" onclick="videoInput.click()">Choose Video</button>
+<input id="videoInput" type="file" accept="video/*" hidden>
+</div>
+
+<div class="card">
+<h2>📝 Notes</h2>
+<p>Quick local notes for your dashboard.</p>
+<button class="outline" onclick="togglePanel('notes')">Open</button>
+</div>
+
+<div class="card">
+<h2>⚙️ Settings</h2>
+<p>Change JARVIS mode and voice settings.</p>
+<button class="outline" onclick="togglePanel('settings')">Open</button>
+</div>
 
 </section>
 
-<section class="features">
+<!-- JARVIS -->
+<section id="jarvis" class="panel">
 
-  <div class="card">
-    <h2>🎥 Videos</h2>
-    <p>Create and discover short-form content.</p>
-  </div>
+<h2>🤖 JARVIS Console</h2>
+<div class="wave">〰️〰️〰️</div>
 
-  <div class="card">
-    <h2>💎 Subscriptions</h2>
-    <p>Build a premium community.</p>
-  </div>
+<div id="chat" class="chat">
+<div class="msg jarvis">
+JARVIS: Systems online. How can I help you?
+</div>
+</div>
 
-  <div class="card">
-    <h2>🛍️ Shop</h2>
-    <p>Sell products directly to your audience.</p>
-  </div>
+<input id="chatInput" placeholder="Type a message...">
 
-  <div class="card">
-    <h2>📞 Paid Calls</h2>
-    <p>Connect with your audience directly.</p>
-  </div>
+<button class="gold" onclick="sendMessage()">Send</button>
+<button class="outline" onclick="listen()">🎤 Voice</button>
+<button class="outline" onclick="speak(lastReply)">🔊 Speak</button>
 
-  <div class="card">
-    <h2>🤖 AI Studio</h2>
-    <p>Create scripts, ideas and captions.</p>
-  </div>
-
-  <div class="card">
-    <h2>💰 Creator Earnings</h2>
-    <p>Multiple ways for creators to earn.</p>
-  </div>
+<p class="small" style="margin-top:12px">
+Mode: <span id="modeText">JARVIS</span>
+</p>
 
 </section>
 
-<section id="auth">
+<!-- MEMORY -->
+<section id="memory" class="panel">
+<h2>🧠 Memory</h2>
+<textarea id="memoryInput" placeholder="Write something JARVIS should remember..."></textarea>
+<button class="gold" onclick="saveMemory()">Save Memory</button>
+<button class="outline" onclick="showMemory()">Show Memory</button>
+<div id="memoryOutput" style="margin-top:15px;color:#aaa"></div>
+</section>
 
-  <h2>Join FESEN LUXE</h2>
+<!-- REMINDERS -->
+<section id="reminders" class="panel">
+<h2>⏰ Reminder</h2>
+<input id="reminderText" placeholder="Reminder message">
+<input id="reminderMinutes" type="number" min="1" placeholder="Minutes from now">
+<button class="gold" onclick="createReminder()">Create Reminder</button>
+<div id="reminderOutput" style="margin-top:15px;color:#aaa"></div>
+</section>
 
-  <p style="color:#999;margin:10px 0 20px;">
-    Create your account and start building.
-  </p>
+<!-- NOTES -->
+<section id="notes" class="panel">
+<h2>📝 Notes</h2>
+<textarea id="notesInput" placeholder="Write your notes..."></textarea>
+<button class="gold" onclick="saveNotes()">Save Notes</button>
+<button class="outline" onclick="loadNotes()">Load Notes</button>
+</section>
 
-  <input id="email" type="email" placeholder="Email address">
+<!-- CYBER -->
+<section id="cyber" class="panel">
 
-  <input id="password" type="password" placeholder="Password">
+<h2>🛡️ Ethical Cybersecurity Lab</h2>
+<p class="small" style="margin:10px 0">
+For systems you own or have permission to test.
+</p>
 
-  <button class="gold" onclick="signUp()">
-    Create Account
-  </button>
+<input id="securityUrl" placeholder="https://example.com">
 
-  <button class="outline" onclick="login()" style="margin-left:5px;">
-    Login
-  </button>
+<button class="gold" onclick="checkUrl()">Check URL</button>
 
-  <div id="message"></div>
+<div id="securityResult" style="margin-top:15px;color:#aaa"></div>
+
+<hr style="border-color:#222;margin:20px 0">
+
+<h3>🔐 Password Strength</h3>
+<input id="passwordCheck" type="password" placeholder="Test password locally">
+<button class="outline" onclick="passwordStrength()">Analyze</button>
+
+<div id="passwordResult" style="margin-top:15px;color:#aaa"></div>
 
 </section>
+
+<!-- SETTINGS -->
+<section id="settings" class="panel">
+<h2>⚙️ JARVIS Settings</h2>
+
+<label>Personality</label>
+<select id="personality" onchange="changePersonality()">
+<option value="jarvis">Professional JARVIS</option>
+<option value="girlfriend">Warm Girlfriend Mode</option>
+</select>
+
+<label>Voice</label>
+<select id="voiceRate">
+<option value="1">Normal</option>
+<option value="0.8">Slow</option>
+<option value="1.2">Fast</option>
+</select>
+
+<button class="gold" onclick="speak('Settings saved.')">Save / Test</button>
+</section>
+
+</main>
+
+<footer>
+FESEN LUXE × JARVIS v1.0
+</footer>
 
 <script>
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
-  
 
-  function showAuth() {
-    document.getElementById("auth").style.display = "block";
+/* =========================
+   JARVIS CORE
+========================= */
 
-    window.scrollTo({
-      top: document.getElementById("auth").offsetTop,
-      behavior: "smooth"
-    });
+let mode = localStorage.getItem("jarvisMode") || "jarvis";
+let lastReply = "JARVIS systems are ready.";
+
+function togglePanel(id){
+  const p=document.getElementById(id);
+  p.classList.toggle("active");
+  p.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function startJarvis(){
+  togglePanel("jarvis");
+  speak("Hello. JARVIS is online and ready.");
+}
+
+function setMode(newMode){
+  mode=newMode;
+  localStorage.setItem("jarvisMode",mode);
+  document.getElementById("modeText").innerText =
+    mode==="girlfriend" ? "Girlfriend Mode" : "JARVIS";
+  document.getElementById("personality").value=mode;
+
+  const text=mode==="girlfriend"
+    ? "Girlfriend Mode activated. I'm ready to chat with you. ❤️"
+    : "Professional JARVIS mode activated.";
+
+  addMessage(text,"jarvis");
+  speak(text);
+}
+
+function changePersonality(){
+  setMode(document.getElementById("personality").value);
+}
+
+function addMessage(text,type){
+  const chat=document.getElementById("chat");
+  const div=document.createElement("div");
+  div.className="msg "+type;
+  div.innerText=(type==="user"?"You: ":"JARVIS: ")+text;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function generateReply(text){
+  const t=text.toLowerCase();
+
+  if(t.includes("hello")||t.includes("hi")||t.includes("hey")){
+    return mode==="girlfriend"
+      ? "Hey ❤️ I'm here. What are we working on?"
+      : "Hello. JARVIS is ready.";
   }
 
-  async function signUp() {
+  if(t.includes("time")){
+    return "Your browser reports the current time as "+
+      new Date().toLocaleTimeString();
+  }
 
-    const email =
-      document.getElementById("email").value;
+  if(t.includes("date")){
+    return "Today is "+new Date().toLocaleDateString();
+  }
 
-    const password =
-      document.getElementById("password").value;
+  if(t.includes("remember")){
+    return "Use the Memory module to save that permanently in this browser.";
+  }
 
-    const { error } =
-      await supabaseClient.auth.signUp({
-        email,
-        password
-      });
+  if(t.includes("hack")){
+    return "I can help with ethical cybersecurity, CTFs and security testing on systems you own or have permission to test.";
+  }
 
-    if (error) {
-      document.getElementById("message").innerText =
-        error.message;
-      return;
+  if(t.includes("girlfriend")){
+    setMode("girlfriend");
+    return "Girlfriend Mode activated. ❤️";
+  }
+
+  return mode==="girlfriend"
+    ? "I'm listening. Tell me what you want to work on. ❤️"
+    : "Understood. I can help with that. For real AI answers, connect a secure backend API.";
+}
+
+function sendMessage(){
+  const input=document.getElementById("chatInput");
+  const text=input.value.trim();
+
+  if(!text)return;
+
+  addMessage(text,"user");
+  input.value="";
+
+  lastReply=generateReply(text);
+
+  setTimeout(()=>{
+    addMessage(lastReply,"jarvis");
+    speak(lastReply);
+  },300);
+}
+
+/* =========================
+   VOICE
+========================= */
+
+function speak(text){
+  if(!("speechSynthesis" in window)){
+    alert("Text-to-speech is not supported in this browser.");
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const u=new SpeechSynthesisUtterance(text);
+  u.rate=parseFloat(document.getElementById("voiceRate").value||1);
+
+  speechSynthesis.speak(u);
+}
+
+function listen(){
+  const SpeechRecognition=
+    window.SpeechRecognition||window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
+    alert("Voice recognition is not supported in this browser.");
+    return;
+  }
+
+  const recognition=new SpeechRecognition();
+
+  recognition.lang="en-IN";
+  recognition.interimResults=false;
+
+  recognition.onresult=function(event){
+    const text=event.results[0][0].transcript;
+    document.getElementById("chatInput").value=text;
+    sendMessage();
+  };
+
+  recognition.onerror=function(){
+    alert("Microphone/voice recognition could not start.");
+  };
+
+  recognition.start();
+}
+
+/* =========================
+   MEMORY
+========================= */
+
+function saveMemory(){
+  const value=document.getElementById("memoryInput").value.trim();
+  if(!value)return;
+
+  const memories=JSON.parse(
+    localStorage.getItem("jarvisMemory")||"[]"
+  );
+
+  memories.push({
+    text:value,
+    time:new Date().toLocaleString()
+  });
+
+  localStorage.setItem("jarvisMemory",JSON.stringify(memories));
+
+  document.getElementById("memoryInput").value="";
+  document.getElementById("memoryOutput").innerText="Memory saved. ✅";
+}
+
+function showMemory(){
+  const memories=JSON.parse(
+    localStorage.getItem("jarvisMemory")||"[]"
+  );
+
+  if(!memories.length){
+    document.getElementById("memoryOutput").innerText="No memories saved.";
+    return;
+  }
+
+  document.getElementById("memoryOutput").innerHTML=
+    memories.map(x=>"• "+escapeHtml(x.text)+" — "+x.time).join("<br>");
+}
+
+/* =========================
+   REMINDERS
+========================= */
+
+function createReminder(){
+  const text=document.getElementById("reminderText").value.trim();
+  const minutes=parseInt(document.getElementById("reminderMinutes").value);
+
+  if(!text||!minutes){
+    alert("Enter reminder and minutes.");
+    return;
+  }
+
+  setTimeout(()=>{
+    alert("🤖 JARVIS Reminder: "+text);
+    speak("Reminder: "+text);
+  },minutes*60000);
+
+  document.getElementById("reminderOutput").innerText=
+    "Reminder set for "+minutes+" minute(s). ✅";
+}
+
+/* =========================
+   NOTES
+========================= */
+
+function saveNotes(){
+  localStorage.setItem(
+    "jarvisNotes",
+    document.getElementById("notesInput").value
+  );
+  alert("Notes saved. ✅");
+}
+
+function loadNotes(){
+  document.getElementById("notesInput").value=
+    localStorage.getItem("jarvisNotes")||"";
+}
+
+/* =========================
+   WEB SEARCH
+========================= */
+
+function webSearch(){
+  const q=prompt("What should JARVIS search for?");
+  if(!q)return;
+
+  window.open(
+    "https://www.google.com/search?q="+encodeURIComponent(q),
+    "_blank"
+  );
+}
+
+/* =========================
+   LOCATION
+========================= */
+
+function getLocation(){
+  if(!navigator.geolocation){
+    alert("Location is not supported.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat=pos.coords.latitude;
+      const lon=pos.coords.longitude;
+
+      alert(
+        "Your approximate location permission was granted.\n"+
+        "Latitude: "+lat+"\nLongitude: "+lon
+      );
+    },
+    ()=>{
+      alert("Location permission was denied or unavailable.");
+    }
+  );
+}
+
+/* =========================
+   CYBERSECURITY
+========================= */
+
+function checkUrl(){
+  const value=document.getElementById("securityUrl").value.trim();
+  const result=document.getElementById("securityResult");
+
+  if(!value){
+    result.innerText="Enter a URL.";
+    return;
+  }
+
+  try{
+    const url=new URL(value);
+
+    let report="Host: "+url.hostname+"<br>";
+    report+="Protocol: "+url.protocol+"<br>";
+
+    if(url.protocol==="https:"){
+      report+="HTTPS: Enabled ✅<br>";
+    }else{
+      report+="HTTPS: Not enabled ⚠️<br>";
     }
 
-    document.getElementById("message").innerText =
-      "Account created! Check your email to verify.";
+    report+="Port: "+(url.port||"default")+"<br>";
+    report+="Path: "+(url.pathname||"/");
+
+    result.innerHTML=report;
+  }catch(e){
+    result.innerText="Invalid URL.";
   }
+}
 
-  async function login() {
+function passwordStrength(){
+  const p=document.getElementById("passwordCheck").value;
+  let score=0;
 
-    const email =
-      document.getElementById("email").value;
+  if(p.length>=8)score++;
+  if(p.length>=12)score++;
+  if(/[A-Z]/.test(p))score++;
+  if(/[a-z]/.test(p))score++;
+  if(/[0-9]/.test(p))score++;
+  if(/[^A-Za-z0-9]/.test(p))score++;
 
-    const password =
-      document.getElementById("password").value;
+  let text=
+    score<=2 ? "Weak ⚠️":
+    score<=4 ? "Medium 🟡":
+    "Strong ✅";
 
-    const { error } =
-      await supabaseClinet.auth.signInWithPassword({
-        email,
-        password
-      });
+  document.getElementById("passwordResult").innerText=
+    text+" — Score "+score+"/6";
+}
 
-    if (error) {
-      document.getElementById("message").innerText =
-        error.message;
-      return;
-    }
+/* =========================
+   FILE HANDLERS
+========================= */
 
-    document.getElementById("message").innerText =
-      "Login successful!";
+document.getElementById("photoInput").addEventListener("change",e=>{
+  if(e.target.files.length){
+    alert("Photo selected: "+e.target.files[0].name+
+      "\nEditing backend will be connected in the next stage.");
   }
+});
+
+document.getElementById("videoInput").addEventListener("change",e=>{
+  if(e.target.files.length){
+    alert("Video selected: "+e.target.files[0].name+
+      "\nVideo processing backend will be connected in the next stage.");
+  }
+});
+
+function escapeHtml(text){
+  const div=document.createElement("div");
+  div.textContent=text;
+  return div.innerHTML;
+}
+
+/* restore mode */
+
+document.getElementById("modeText").innerText=
+  mode==="girlfriend" ? "Girlfriend Mode" : "JARVIS";
+
+document.getElementById("personality").value=mode;
 
 </script>
 
 </body>
-</html> 
+</html>
